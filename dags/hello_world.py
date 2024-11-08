@@ -1,9 +1,9 @@
 from datetime import datetime
 
 from airflow.models import DAG
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.empty import EmptyOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 
 default_args = {
     'owner': 'orchestra',
@@ -17,10 +17,10 @@ def hello_world_loop():
 with DAG(
     dag_id='hello_world',
     default_args = default_args,
-    schedule_interval='@once'
+    schedule='@once'
 ) as dag:
 
-    test_start = DummyOperator(task_id='test_start')
+    test_start = EmptyOperator(task_id='test_start')
 
     test_python = PythonOperator(task_id='test_python', python_callable=hello_world_loop)
 

@@ -1,8 +1,7 @@
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
-from airflow.operators.email_operator import EmailOperator
-from airflow.contrib.operators.slack_webhook_operator import SlackWebhookOperator
-from airflow.providers.microsoft.teams.operators.teams_operator import TeamsWebhookOperator
+from airflow.operators.python import PythonOperator
+from airflow.operators.email import EmailOperator
+#from airflow.providers.microsoft.teams.operators.teams_operator import TeamsWebhookOperator
 from datetime import datetime, timedelta
 import requests
 import time
@@ -51,24 +50,15 @@ def trigger_fivetran_run(**kwargs):
                 raise Exception("Fivetran run failed")
             time.sleep(30)  # Poll every 30 seconds
     except Exception as e:
-        # Send Slack notification on failure
-        slack_alert = SlackWebhookOperator(
-            task_id='slack_alert',
-            http_conn_id='slack_connection',
-            message=f"Fivetran run failed: {str(e)}",
-            webhook_token=slack_webhook_url,
-            dag=dag,
-        )
-        slack_alert.execute(context=kwargs)
 
         # Send Teams notification on failure
-        teams_alert = TeamsWebhookOperator(
-            task_id='teams_alert',
-            message=f"Fivetran run failed: {str(e)}",
-            webhook_conn_id='teams_connection',
-            dag=dag,
-        )
-        teams_alert.execute(context=kwargs)
+        #teams_alert = TeamsWebhookOperator(
+        #    task_id='teams_alert',
+        #    message=f"Fivetran run failed: {str(e)}",
+        #    webhook_conn_id='teams_connection',
+        #    dag=dag,
+        #)
+        #teams_alert.execute(context=kwargs)
 
         # Send email notification on failure
         email_alert = EmailOperator(
@@ -99,24 +89,15 @@ def trigger_dbt_cloud_run(**kwargs):
                 raise Exception("dbt Cloud run failed")
             time.sleep(30)  # Poll every 30 seconds
     except Exception as e:
-        # Send Slack notification on failure
-        slack_alert = SlackWebhookOperator(
-            task_id='slack_alert',
-            http_conn_id='slack_connection',
-            message=f"dbt Cloud run failed: {str(e)}",
-            webhook_token=slack_webhook_url,
-            dag=dag,
-        )
-        slack_alert.execute(context=kwargs)
 
         # Send Teams notification on failure
-        teams_alert = TeamsWebhookOperator(
-            task_id='teams_alert',
-            message=f"dbt Cloud run failed: {str(e)}",
-            webhook_conn_id='teams_connection',
-            dag=dag,
-        )
-        teams_alert.execute(context=kwargs)
+        #teams_alert = TeamsWebhookOperator(
+        #    task_id='teams_alert',
+        #    message=f"dbt Cloud run failed: {str(e)}",
+        #    webhook_conn_id='teams_connection',
+        #    dag=dag,
+        #)
+        #teams_alert.execute(context=kwargs)
 
         # Send email notification on failure
         email_alert = EmailOperator(
@@ -147,24 +128,15 @@ def trigger_power_bi_refresh(**kwargs):
                 raise Exception("Power BI refresh failed")
             time.sleep(30)  # Poll every 30 seconds
     except Exception as e:
-        # Send Slack notification on failure
-        slack_alert = SlackWebhookOperator(
-            task_id='slack_alert',
-            http_conn_id='slack_connection',
-            message=f"Power BI refresh failed: {str(e)}",
-            webhook_token=slack_webhook_url,
-            dag=dag,
-        )
-        slack_alert.execute(context=kwargs)
 
         # Send Teams notification on failure
-        teams_alert = TeamsWebhookOperator(
-            task_id='teams_alert',
-            message=f"Power BI refresh failed: {str(e)}",
-            webhook_conn_id='teams_connection',
-            dag=dag,
-        )
-        teams_alert.execute(context=kwargs)
+        #teams_alert = TeamsWebhookOperator(
+        #    task_id='teams_alert',
+        #    message=f"Power BI refresh failed: {str(e)}",
+        #    webhook_conn_id='teams_connection',
+        #    dag=dag,
+        #)
+        #teams_alert.execute(context=kwargs)
 
         # Send email notification on failure
         email_alert = EmailOperator(

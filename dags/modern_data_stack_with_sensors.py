@@ -1,9 +1,8 @@
 from airflow import DAG
-from airflow.contrib.sensors.http_sensor import HttpSensor
-from airflow.operators.python_operator import PythonOperator
-from airflow.operators.email_operator import EmailOperator
-from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
-from airflow.providers.microsoft.teams.operators.teams_webhook import TeamsWebhookOperator
+from airflow.providers.http.sensors.http import HttpSensor
+from airflow.operators.python import PythonOperator
+from airflow.operators.email import EmailOperator
+#from airflow.providers.microsoft.teams.operators.teams_webhook import TeamsWebhookOperator
 from datetime import datetime, timedelta
 import requests
 
@@ -32,24 +31,14 @@ teams_webhook_url = 'https://outlook.office.com/webhook/YOUR/TEAMS/WEBHOOK'
 
 # Define the functions to be executed by the operators
 
-def send_slack_notification(message):
-    slack_alert = SlackWebhookOperator(
-        task_id='slack_alert',
-        http_conn_id='slack_connection',
-        message=message,
-        webhook_token=slack_webhook_url,
-        dag=dag,
-    )
-    slack_alert.execute()
-
-def send_teams_notification(message):
-    teams_alert = TeamsWebhookOperator(
-        task_id='teams_alert',
-        message=message,
-        webhook_conn_id='teams_connection',
-        dag=dag,
-    )
-    teams_alert.execute()
+#def send_teams_notification(message):
+#    teams_alert = TeamsWebhookOperator(
+#        task_id='teams_alert',
+#        message=message,
+#        webhook_conn_id='teams_connection',
+#        dag=dag,
+#    )
+#    teams_alert.execute()
 
 def send_email_notification(subject, html_content):
     email_alert = EmailOperator(
@@ -140,19 +129,12 @@ power_bi_sensor = HttpSensor(
 
 # Define the notification tasks
 
-send_slack_notification_task = PythonOperator(
-    task_id='send_slack_notification',
-    python_callable=send_slack_notification,
-    op_kwargs={'message': 'Fivetran run failed'},
-    dag=dag,
-)
-
-send_teams_notification_task = PythonOperator(
-    task_id='send_teams_notification',
-    python_callable=send_teams_notification,
-    op_kwargs={'message': 'Fivetran run failed'},
-    dag=dag,
-)
+#send_teams_notification_task = PythonOperator(
+#    task_id='send_teams_notification',
+#    python_callable=send_teams_notification,
+#    op_kwargs={'message': 'Fivetran run failed'},
+#    dag=dag,
+#)
 
 send_email_notification_task = PythonOperator(
     task_id='send_email_notification',
@@ -164,4 +146,6 @@ send_email_notification_task = PythonOperator(
 # Define the execution order of the tasks
 
 fivetran_operator >> fivetran_sensor >> dbt_cloud_operator >> dbt_cloud_sensor >> power_bi_operator >> power_bi_sensor
-power_bi_sensor >> [send_slack_notification_task, send_teams_notification_task, send_email_notification_task]
+power_bi_sensor >> [send_email_notification_task]
+
+#send_teams_notification_task insert into PowerBI in middle
